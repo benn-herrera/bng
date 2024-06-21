@@ -20,4 +20,4 @@ fi
 source .venv/.activate
 mkdir -p build
 cd build
-cmake -DCMake_PYTHON=$(which python3) ..
+cmake ../src
