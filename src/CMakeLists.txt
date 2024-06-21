@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.22.1 FATAL_ERROR)
 
+set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo)
+
 # some platform builds will have defined CMAKE_SYSTEM_NAME
 # from the command line as they require setup to occur before project()
 # 
@@ -17,6 +19,13 @@ include(cmake/platform_config.cmake)
 include(cmake/commands.cmake)
 
 add_subdirectory(third_party)
+
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR} 
+	${CMAKE_CURRENT_SOURCE_DIR}/api
+	${CMAKE_CURRENT_SOURCE_DIR}/third_party
+)
+
 add_subdirectory(core)
 add_subdirectory(render)
 add_subdirectory(engine)
