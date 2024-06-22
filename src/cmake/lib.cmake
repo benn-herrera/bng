@@ -26,18 +26,46 @@ add_library(
 	${LIB_TARGET} STATIC ${HEADERS} ${SOURCES} ${AIO_SOURCE}
 	)
 
-set(LIB_TARGET_TESTS ${LIB_TARGET}_tests)
-add_custom_target(${LIB_TARGET_TESTS})
-set_target_properties(${LIB_TARGET_TESTS} PROPERTIES EXCLUDE_FROM_ALL true)
-
-foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
-	get_filename_component(TEST_TARGET "${TEST_SOURCE}" NAME_WE)
-	set(TEST_TARGET "test_${LIB_TARGET}_${TEST_TARGET}")
-	add_executable(${TEST_TARGET} EXCLUDE_FROM_ALL ${TEST_HEADERS} ${TEST_SOURCE})
-	add_dependencies(${LIB_TARGET_TESTS} ${TEST_TARGET})
-	target_link_libraries(${TEST_TARGET} ${LIB_TARGET})
-	set_target_properties(${TEST_TARGET}
-	    PROPERTIES
-	    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/"
-	)	
+foreach(HEADER IN LISTS HEADERS)
+	get_filename_component(FOLDER "${HEADER}" DIRECTORY)
+	if(FOLDER)
+		source_group("Header Files/${FOLDER}" "${HEADER}")
+	endif()
 endforeach()
+foreach(SOURCE IN LISTS SOURCES)
+	get_filename_component(FOLDER "${SOURCE}" DIRECTORY)
+	if(FOLDER)
+		source_group("Source Files/${FOLDER}" "${SOURCE}")
+	endif()
+endforeach()
+
+if(BNG_BUILD_TESTS)
+	set(LIB_TARGET_TESTS run_${LIB_TARGET}_tests)
+	add_custom_target(${LIB_TARGET_TESTS})
+	set_target_properties(
+		${LIB_TARGET_TESTS} PROPERTIES 
+		EXCLUDE_FROM_ALL true
+		# EXCLUDE_FROM_DEFAULT_BUILD true	
+		FOLDER "tests/"	
+		)
+	set(TEST_SUITES )
+
+	foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
+		get_filename_component(TEST_TARGET "${TEST_SOURCE}" NAME_WE)
+		set(TEST_TARGET "test_${LIB_TARGET}_${TEST_TARGET}")
+		add_executable(${TEST_TARGET} EXCLUDE_FROM_ALL ${TEST_HEADERS} ${TEST_SOURCE})
+		add_dependencies(${LIB_TARGET_TESTS} ${TEST_TARGET})
+		add_custom_command(
+			TARGET ${LIB_TARGET_TESTS}
+			POST_BUILD
+			COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")
+		target_link_libraries(${TEST_TARGET} ${LIB_TARGET})
+		set_target_properties(${TEST_TARGET}
+		    PROPERTIES
+		    EXCLUDE_FROM_ALL true
+		    # EXCLUDE_FROM_DEFAULT_BUILD true
+		    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/"
+		    FOLDER "tests/${LIB_TARGET}_tests"
+		)	
+	endforeach()
+endif()

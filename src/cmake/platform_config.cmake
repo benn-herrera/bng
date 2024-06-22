@@ -31,13 +31,17 @@ if(BNG_IS_CLANG)
 	add_compile_options(-Wall -Werror -fno-exceptions -fno-rtti -fvisibility=hidden -std=c++20)
 elseif(BNG_IS_MSVC)
 	add_compile_definitions(BNG_IS_MSVC)		
-	add_compile_options(/Wall /WX /GR- /EHsc /std:c++20)
+	add_compile_options(/wd4710 /Wall /WX /GR- /EHsc /std:c++20)
 else()
 	message(FATAL_ERROR "unsupported compiler.")
 endif()
 
+
+set(BNG_BUILD_TESTS BNG_DEBUG CACHE BOOL "what it says on the tin")
+
 set(BNG_OPTIMIZED_BUILD_TYPE BNG_DEBUG CACHE STRING "what it says on the tin")
 set_property(CACHE BNG_OPTIMIZED_BUILD_TYPE PROPERTY STRINGS BNG_DEBUG BNG_RELEASE)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_compile_definitions(
 	$<IF:$<CONFIG:Debug>,BNG_DEBUG,>
