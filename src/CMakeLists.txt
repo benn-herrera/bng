@@ -18,6 +18,8 @@ endif()
 include(cmake/platform_config.cmake)
 include(cmake/commands.cmake)
 
+set(CMAKE_INCLUDE "${PROJECT_SOURCE_DIR}/cmake")
+
 add_subdirectory(third_party)
 
 include_directories(

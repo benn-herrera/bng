@@ -1,2 +1,1 @@
-
-# TODO: add first target
+include("${CMAKE_INCLUDE}/lib.cmake")
