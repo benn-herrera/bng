@@ -3,12 +3,12 @@
 
 using namespace bng::engine;
 
-BNG_TEST(test_system_1, {
+BNG_TEST(test_1, {
 	Engine engine;
 	BT_CHECK(engine.foo() == 1);
 });
 
-BNG_TEST(test_system_2, {
+BNG_TEST(test_2, {
 	Engine engine;
 	BT_CHECK(true);
 	BT_CHECK(engine.foo() != 2);
