@@ -44,7 +44,7 @@ done
 case "$(uname)" in
 	MINGW*) IS_WIN=true;;
 	Darwin*) IS_MAC=true;;
-	Linux*) IS_LNX=true; GENERATOR="-G=ninja";;
+	Linux*) IS_LNX=true; GENERATOR="-G=Ninja";;
   *) echo "unsupported platform $(uname)" 1>&2; exit 1;;
 esac
 
