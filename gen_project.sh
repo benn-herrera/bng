@@ -71,7 +71,10 @@ if is_true ${BUILD:-false}; then
 	cmake --build . && \
 	(
 		export PATH=".:${PATH}"
-		cd tests/Debug
+		cd tests
+		if [[ -d Debug ]]; then
+			cd Debug
+		fi
 		EC=0
 		for TEST in $(/bin/ls test_* | grep -v 'pdb'); do
 			if ! "${TEST}"; then
