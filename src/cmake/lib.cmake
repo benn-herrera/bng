@@ -41,14 +41,18 @@ endforeach()
 
 if(BNG_BUILD_TESTS)
 	set(LIB_TARGET_TESTS run_${LIB_TARGET}_tests)
-	add_custom_target(${LIB_TARGET_TESTS})
+	add_custom_target(${LIB_TARGET_TESTS} DEPENDS ${LIB_TARGET})
 	set_target_properties(
 		${LIB_TARGET_TESTS} PROPERTIES 
 		EXCLUDE_FROM_ALL true
 		# EXCLUDE_FROM_DEFAULT_BUILD true	
 		FOLDER "tests/"	
 		)
-	set(TEST_SUITES )
+
+	add_custom_command(
+		OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dummy.txt"
+		COMMAND echo
+	)
 
 	foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
 		get_filename_component(TEST_TARGET "${TEST_SOURCE}" NAME_WE)
@@ -57,7 +61,7 @@ if(BNG_BUILD_TESTS)
 		add_dependencies(${LIB_TARGET_TESTS} ${TEST_TARGET})
 		add_custom_command(
 			TARGET ${LIB_TARGET_TESTS}
-			POST_BUILD
+			DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/dummy.txt"
 			COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")
 		target_link_libraries(${TEST_TARGET} ${LIB_TARGET})
 		set_target_properties(${TEST_TARGET}

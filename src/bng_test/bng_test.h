@@ -60,7 +60,7 @@ namespace bng::test {
 		_t_->checks++; \
 		if (!(V)) { \
 			_t_->errs++; \
-			fprintf(stderr, "CHECK FAILED: %s\n", #V); } \
+			fprintf(stderr, "%s(%d): CHECK FAILED %s\n", __FILE__, __LINE__, #V); } \
 		} while(0)
 } // namepsace bng::test
 
