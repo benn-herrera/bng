@@ -46,6 +46,8 @@ add_compile_definitions(
 	$<IF:$<CONFIG:RelWithDebInfo>,-D${BNG_OPTIMIZED_BUILD_TYPE},>
 )
 
+get_filename_component(REPO_ROOT_DIR "${PROJECT_SOURCE_DIR}" DIRECTORY)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ${USE_FOLDERS})
 # GLOB and GLOB_RECURSE are used for automatic target generation (see lib.cmake)
 # add a FORCE_REGEN target for easy regen when files are added/removed/renamed.
