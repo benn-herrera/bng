@@ -32,3 +32,11 @@ add_subdirectory(core)
 add_subdirectory(render)
 add_subdirectory(engine)
 add_subdirectory(platform)
+
+add_custom_target(run_all_tests DEPENDS ${ALL_TEST_TARGETS})
+set_target_properties(
+	run_all_tests PROPERTIES
+	EXCLUDE_FROM_ALL ${BNG_EXCLUDE_TESTS_FROM_ALL_BUILD}
+	EXCLUDE_FROM_DEFAULT_BUILD ${BNG_EXCLUDE_TESTS_FROM_ALL_BUILD}	
+	FOLDER "tests/"	
+	)

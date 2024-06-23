@@ -38,9 +38,14 @@ endif()
 
 include("${CMAKE_INCLUDE}/options.cmake")
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
 add_compile_definitions(
 	$<IF:$<CONFIG:Debug>,BNG_DEBUG,>
 	$<IF:$<CONFIG:RelWithDebInfo>,-D${BNG_OPTIMIZED_BUILD_TYPE},>
 )
+
+set_property(GLOBAL PROPERTY USE_FOLDERS ${USE_FOLDERS})
+# GLOB and GLOB_RECURSE are used for automatic target generation (see lib.cmake)
+# add a FORCE_REGEN target for easy regen when files are added/removed/renamed.
+add_custom_target(FORCE_REGEN)
+set_target_properties(FORCE_REGEN PROPERTIES FOLDER "CMakePredefinedTargets")
+add_custom_command(TARGET FORCE_REGEN COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_LIST_FILE})

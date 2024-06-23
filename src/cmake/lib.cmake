@@ -26,39 +26,38 @@ add_library(
 	${LIB_TARGET} STATIC ${HEADERS} ${SOURCES} ${AIO_SOURCE}
 	)
 
-foreach(HEADER IN LISTS HEADERS)
-	get_filename_component(FOLDER "${HEADER}" DIRECTORY)
-	if(FOLDER)
-		source_group("Header Files/${FOLDER}" "${HEADER}")
-	endif()
-endforeach()
-foreach(SOURCE IN LISTS SOURCES)
-	get_filename_component(FOLDER "${SOURCE}" DIRECTORY)
-	if(FOLDER)
-		source_group("Source Files/${FOLDER}" "${SOURCE}")
-	endif()
-endforeach()
+if(USE_FOLDERS)
+	foreach(HEADER IN LISTS HEADERS)
+		get_filename_component(FOLDER "${HEADER}" DIRECTORY)
+		if(FOLDER)
+			source_group("Header Files/${FOLDER}" "${HEADER}")
+		endif()
+	endforeach()
+	foreach(SOURCE IN LISTS SOURCES)
+		get_filename_component(FOLDER "${SOURCE}" DIRECTORY)
+		if(FOLDER)
+			source_group("Source Files/${FOLDER}" "${SOURCE}")
+		endif()
+	endforeach()
+endif()
 
-if(BNG_BUILD_TESTS)
-	if(BNG_INCLUDE_BUILD_TESTS_IN_ALL)
-		set(EXCLUDE_BUILD_TESTS_FROM_ALL FALSE)
-	else()
-		set(EXCLUDE_BUILD_TESTS_FROM_ALL TRUE)
-	endif()
-
+if(BNG_BUILD_TESTS AND TEST_SOURCES)
 	set(LIB_TARGET_TESTS run_${LIB_TARGET}_tests)
 	add_custom_target(${LIB_TARGET_TESTS} DEPENDS ${LIB_TARGET})
 	set_target_properties(
 		${LIB_TARGET_TESTS} PROPERTIES 
-		EXCLUDE_FROM_ALL true
+		EXCLUDE_FROM_ALL ${BNG_EXCLUDE_TESTS_FROM_ALL_BUILD}
+		EXCLUDE_FROM_DEFAULT_BUILD ${BNG_EXCLUDE_TESTS_FROM_ALL_BUILD}
 		FOLDER "tests/"	
 		)
+	set(ALL_TEST_TARGETS ${ALL_TEST_TARGETS} ${LIB_TARGET_TESTS} PARENT_SCOPE)	
 
 	add_custom_command(
 		OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dummy.txt"
 		COMMAND echo
 	)
 
+	set(ALL_TEST_TARGETS ${ALL_TEST_TARGETS})
 	foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
 		get_filename_component(TEST_TARGET "${TEST_SOURCE}" NAME_WE)
 		set(TEST_TARGET "test_${LIB_TARGET}_${TEST_TARGET}")
@@ -66,14 +65,13 @@ if(BNG_BUILD_TESTS)
 		add_dependencies(${LIB_TARGET_TESTS} ${TEST_TARGET})
 		add_custom_command(
 			TARGET ${LIB_TARGET_TESTS}
-			DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/dummy.txt"
+			DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test.dummy"
 			COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")
 		target_link_libraries(${TEST_TARGET} ${LIB_TARGET})
 		set_target_properties(${TEST_TARGET}
 		    PROPERTIES
-		    EXCLUDE_FROM_ALL ${EXCLUDE_BUILD_TESTS_FROM_ALL}
 		    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/"
 		    FOLDER "tests/${LIB_TARGET}_tests"
-		)	
+		)
 	endforeach()
 endif()

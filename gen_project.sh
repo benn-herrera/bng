@@ -62,31 +62,14 @@ fi
 mkdir -p build
 cd build
 
-if ! cmake ${GENERATOR} "${@}" "../src"; then
+if is_true ${BUILD:-false}; then
+	BUILD_TESTS="-DBNG_BUILD_TESTS=TRUE -DBNG_EXCLUDE_TESTS_FROM_BUILD_ALL=TRUE"
+fi
+
+if ! cmake ${GENERATOR} ${BUILD_TESTS} "${@}" "../src"; then
 	exit 1
 fi
 
-# TODO: generate a run all tests target
 if is_true ${BUILD:-false}; then
-	cmake --build . --target clean && \
-	cmake --build . && \
-	(
-		export PATH=".:${PATH}"
-		cd tests
-		if [[ -d Debug ]]; then
-			cd Debug
-		fi
-		EC=0
-		for TEST in $(/bin/ls test_* | grep -v 'pdb'); do
-			if ! "${TEST}"; then
-				EC=1
-			fi
-		done
-		if [[ ${EC} == 0 ]]; then
-			echo "all suites passed."
-		else
-			echo "one or more suites FAILED" 1>&2
-		fi
-		exit ${EC}
-	)
+	cmake --build . && cmake --build . --target test_all
 fi
