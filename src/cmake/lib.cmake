@@ -13,17 +13,25 @@ file(GLOB_RECURSE TEST_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_C
 list(REMOVE_ITEM SOURCES ${TEST_SOURCES})
 list(REMOVE_ITEM HEADERS ${TEST_HEADERS})
 
-set(AIO_SOURCE "${LIB_TARGET}AIO.cpp")
-file(WRITE "${AIO_SOURCE}" "// generated unity build file for ${LIB_TARGET}\n")
-foreach(SOURCE IN LISTS SOURCES)
-	file(APPEND "${AIO_SOURCE}" "#include \"${SOURCE}\"\n")
-endforeach()
+if(SOURCES)
+	set(AIO_SOURCE "${LIB_TARGET}AIO.cpp")
+	file(WRITE "${AIO_SOURCE}" "// generated unity build file for ${LIB_TARGET}\n")
+	foreach(SOURCE IN LISTS SOURCES)
+		file(APPEND "${AIO_SOURCE}" "#include \"${SOURCE}\"\n")
+	endforeach()
+	set_source_files_properties(${SOURCES} PROPERTIES HEADER_FILE_ONLY true)
+	set(LIB_TYPE STATIC)
+else()
+	set(LIB_TYPE INTERFACE)
+endif()
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
-set_source_files_properties(${SOURCES} PROPERTIES HEADER_FILE_ONLY true)
 
 add_library(
-	${LIB_TARGET} STATIC ${HEADERS} ${SOURCES} ${AIO_SOURCE}
+	${LIB_TARGET} ${LIB_TYPE}
+	 ${HEADERS} 
+	 ${SOURCES} 
+	 ${AIO_SOURCE}
 	)
 
 if(USE_FOLDERS)

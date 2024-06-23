@@ -28,15 +28,18 @@ endif()
 
 if(BNG_IS_CLANG)
 	add_compile_definitions(BNG_IS_CLANG)	
-	add_compile_options(-Wall -Werror -fno-exceptions -fno-rtti -fvisibility=hidden -std=c++20)
+	add_compile_options(-Wall -Werror -fno-exceptions -fno-rtti -fvisibility=hidden)
 elseif(BNG_IS_MSVC)
 	add_compile_definitions(BNG_IS_MSVC)		
-	add_compile_options(/wd4710 /Wall /WX /GR- /EHsc /std:c++20)
+	add_compile_options(/wd4710 /Wall /WX /GR- /EHsc)
 else()
 	message(FATAL_ERROR "unsupported compiler.")
 endif()
 
 include("${CMAKE_INCLUDE}/options.cmake")
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 17)
 
 add_compile_definitions(
 	$<IF:$<CONFIG:Debug>,BNG_DEBUG,>
