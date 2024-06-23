@@ -63,7 +63,7 @@ mkdir -p build
 cd build
 
 if is_true ${BUILD:-false}; then
-	BUILD_TESTS="-DBNG_BUILD_TESTS=TRUE -DBNG_EXCLUDE_TESTS_FROM_BUILD_ALL=FALSE"
+	BUILD_TESTS="-DBNG_BUILD_TESTS=TRUE -DBNG_EXCLUDE_TESTS_FROM_ALL_BUILD=FALSE"
 fi
 
 if ! cmake ${GENERATOR} ${BUILD_TESTS} "${@}" "../src"; then
