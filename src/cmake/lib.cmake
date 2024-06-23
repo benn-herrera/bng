@@ -40,12 +40,17 @@ foreach(SOURCE IN LISTS SOURCES)
 endforeach()
 
 if(BNG_BUILD_TESTS)
+	if(BNG_INCLUDE_BUILD_TESTS_IN_ALL)
+		set(EXCLUDE_BUILD_TESTS_FROM_ALL FALSE)
+	else()
+		set(EXCLUDE_BUILD_TESTS_FROM_ALL TRUE)
+	endif()
+
 	set(LIB_TARGET_TESTS run_${LIB_TARGET}_tests)
 	add_custom_target(${LIB_TARGET_TESTS} DEPENDS ${LIB_TARGET})
 	set_target_properties(
 		${LIB_TARGET_TESTS} PROPERTIES 
 		EXCLUDE_FROM_ALL true
-		# EXCLUDE_FROM_DEFAULT_BUILD true	
 		FOLDER "tests/"	
 		)
 
@@ -66,8 +71,7 @@ if(BNG_BUILD_TESTS)
 		target_link_libraries(${TEST_TARGET} ${LIB_TARGET})
 		set_target_properties(${TEST_TARGET}
 		    PROPERTIES
-		    EXCLUDE_FROM_ALL true
-		    # EXCLUDE_FROM_DEFAULT_BUILD true
+		    EXCLUDE_FROM_ALL ${EXCLUDE_BUILD_TESTS_FROM_ALL}
 		    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/"
 		    FOLDER "tests/${LIB_TARGET}_tests"
 		)	
