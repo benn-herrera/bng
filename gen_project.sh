@@ -17,7 +17,27 @@ if [[ ! -f .venv/.activate ]]; then
 	exit 1
 fi
 
-source .venv/.activate
+#source .venv/.activate
 mkdir -p build
 cd build
-cmake ../src
+
+cmake "${@}" ../src
+
+function is_true() {
+	case "$1" in
+		t*|T*|y*|Y*|1) return 0;;
+	esac
+	return 1
+}
+
+if is_true ${BUILD:-false}; then
+	cmake --build . --target clean
+	cmake --build .
+	EC=0
+	for TEST in $(/bin/ls tests/*/test_* | grep -v 'pdb'); do
+		if ! "${TEST}"; then
+			EC=1
+		fi
+	done
+	exit ${EC}
+fi
