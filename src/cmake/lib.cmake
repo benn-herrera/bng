@@ -71,10 +71,19 @@ if(BNG_BUILD_TESTS AND TEST_SOURCES)
 		set(TEST_TARGET "test_${LIB_TARGET}_${TEST_TARGET}")
 		add_executable(${TEST_TARGET} EXCLUDE_FROM_ALL ${TEST_HEADERS} ${TEST_SOURCE})
 		add_dependencies(${LIB_TARGET_TESTS} ${TEST_TARGET})
-		add_custom_command(
-			TARGET ${LIB_TARGET_TESTS}
-			DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test.dummy"
-			COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")
+		if((CMAKE_GENERATOR MATCHES "Ninja") OR (CMAKE_GENERATOR MATCHES "Make"))
+			# single config
+			add_custom_command(
+				TARGET ${LIB_TARGET_TESTS}
+				DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test.dummy"
+				COMMAND "${CMAKE_BINARY_DIR}/tests/${TEST_TARGET}")
+		else()
+			# multi config
+			add_custom_command(
+				TARGET ${LIB_TARGET_TESTS}
+				DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test.dummy"
+				COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")			
+		endif()
 		target_link_libraries(${TEST_TARGET} ${LIB_TARGET})
 		set_target_properties(${TEST_TARGET}
 		    PROPERTIES
