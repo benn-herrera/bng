@@ -66,6 +66,7 @@ if ! cmake ${GENERATOR} "${@}" "../src"; then
 	exit 1
 fi
 
+# TODO: generate a run all tests target
 if is_true ${BUILD:-false}; then
 	cmake --build . --target clean && \
 	cmake --build . && \
@@ -81,6 +82,11 @@ if is_true ${BUILD:-false}; then
 				EC=1
 			fi
 		done
+		if [[ ${EC} == 0 ]]; then
+			echo "all suites passed."
+		else
+			echo "one or more suites FAILED" 1>&2
+		fi
 		exit ${EC}
 	)
 fi
