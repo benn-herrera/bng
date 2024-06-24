@@ -15,8 +15,8 @@
 // entry point for test suite exe is in bng_test.h. just add tests and you're done.
 // cmake system will automatically add target test_my_math to the project.
 // each test cpp file constitutes a suite. each suite is a separate executable target.
-// each suite has run target run_[lib_name]_[test_name]. a single run_all_tests target is generated.
-// invoke tests with run_all_tests target in IDE or cmake --build . --target run_all_tests
+// each suite has run target run_[lib_name]_[test_name]. a single RUN_ALL_TESTS target is generated.
+// invoke tests with RUN_ALL_TESTS target in IDE or cmake --build . --target RUN_ALL_TESTS
 #pragma once
 
 // * do not include anything but system utility headers in this file.

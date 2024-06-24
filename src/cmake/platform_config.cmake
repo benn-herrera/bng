@@ -53,4 +53,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ${USE_FOLDERS})
 # add a FORCE_REGEN target for easy regen when files are added/removed/renamed.
 add_custom_target(FORCE_REGEN)
 set_target_properties(FORCE_REGEN PROPERTIES FOLDER "CMakePredefinedTargets")
-add_custom_command(TARGET FORCE_REGEN COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_LIST_FILE})
+add_custom_command(TARGET FORCE_REGEN 
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}" 
+  COMMAND "${CMAKE_COMMAND}" "${PROJECT_SOURCE_DIR}")

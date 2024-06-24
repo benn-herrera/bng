@@ -1,6 +1,5 @@
 # build project generation options
 set(BNG_BUILD_TESTS TRUE CACHE BOOL "add tests suites to project")
-set(BNG_EXCLUDE_TESTS_FROM_DEFAULT_BUILD TRUE CACHE BOOL "if true only run tests when run_tests explicitly invoked")
 set(USE_FOLDERS TRUE CACHE BOOL "use folders in IDE organization")
 
 set(BNG_OPTIMIZED_BUILD_TYPE BNG_DEBUG CACHE STRING "what it says on the tin")
