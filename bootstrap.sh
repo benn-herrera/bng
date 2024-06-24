@@ -18,6 +18,13 @@ if ! CMAKE=$(which cmake 2> /dev/null); then
 fi
 echo "cmake found."
 
+if ${IS_LNX:-false}; then
+  if ! NINJA=$(which ninja 2> /dev/null); then
+    echo "ninja must be in path." 1>&2
+  fi
+  echo "ninja found."
+fi
+
 if [[ ! -f .venv/.activate ]]; then
   if ! PYTHON=$(which python3 2> /dev/null); then
     if ! PYTHON=$(which python 2> /dev/null); then
