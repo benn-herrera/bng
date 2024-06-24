@@ -34,16 +34,16 @@ add_subdirectory(render)
 add_subdirectory(engine)
 add_subdirectory(platform)
 
-if(ALL_TEST_TARGETS)
-  add_custom_target(run_all_suites DEPENDS ${ALL_TEST_TARGETS})
+if(ALL_RUN_TEST_TARGETS)
+  add_custom_target(run_all_suites DEPENDS ${ALL_RUN_TEST_TARGETS})
   set_target_properties(
     run_all_suites PROPERTIES
     EXCLUDE_FROM_ALL TRUE
     EXCLUDE_FROM_DEFAULT_BUILD TRUE
     FOLDER "tests/" 
     )
-add_custom_target(RUN_ALL_TESTS)
-set_target_properties(RUN_ALL_TESTS PROPERTIES FOLDER "CMakePredefinedTargets")
-add_custom_command(TARGET RUN_ALL_TESTS
-  COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target run_all_suites)
+  add_custom_target(RUN_ALL_TESTS)
+  set_target_properties(RUN_ALL_TESTS PROPERTIES FOLDER "CMakePredefinedTargets")
+  add_custom_command(TARGET RUN_ALL_TESTS
+    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target run_all_suites)
 endif()

@@ -51,22 +51,21 @@ if(USE_FOLDERS)
 endif()
 
 if(BNG_BUILD_TESTS AND TEST_SOURCES)
-  set(LIB_TARGET_TESTS run_${LIB_TARGET}_tests)
-  add_custom_target(${LIB_TARGET_TESTS} DEPENDS ${LIB_TARGET})
+  set(RUN_LIB_TESTS_TARGET run_${LIB_TARGET}_tests)
+  add_custom_target(${RUN_LIB_TESTS_TARGET} DEPENDS ${LIB_TARGET})
   set_target_properties(
-    ${LIB_TARGET_TESTS} PROPERTIES 
+    ${RUN_LIB_TESTS_TARGET} PROPERTIES 
     EXCLUDE_FROM_ALL TRUE
     EXCLUDE_FROM_DEFAULT_BUILD TRUE
     FOLDER "tests/"
     )
-  set(ALL_TEST_TARGETS ${ALL_TEST_TARGETS} ${LIB_TARGET_TESTS} PARENT_SCOPE)  
+  set(ALL_RUN_TEST_TARGETS ${ALL_RUN_TEST_TARGETS} ${RUN_LIB_TESTS_TARGET} PARENT_SCOPE)  
 
   add_custom_command(
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/dummy.txt"
     COMMAND echo
   )
 
-  set(ALL_TEST_TARGETS ${ALL_TEST_TARGETS})
   foreach(TEST_SOURCE IN LISTS TEST_SOURCES)
     get_filename_component(TEST_TARGET "${TEST_SOURCE}" NAME_WE)
     string(REPLACE "_test_" "" TEST_TARGET "${TEST_TARGET}")
@@ -79,17 +78,17 @@ if(BNG_BUILD_TESTS AND TEST_SOURCES)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests/"
         FOLDER "tests/${LIB_TARGET}_tests"
     )
-    add_dependencies(${LIB_TARGET_TESTS} ${TEST_TARGET})
+    add_dependencies(${RUN_LIB_TESTS_TARGET} ${TEST_TARGET})
     if((CMAKE_GENERATOR MATCHES "Ninja") OR (CMAKE_GENERATOR MATCHES "Make"))
       # single config
       add_custom_command(
-        TARGET ${LIB_TARGET_TESTS}
+        TARGET ${RUN_LIB_TESTS_TARGET}
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test.dummy"
         COMMAND "${CMAKE_BINARY_DIR}/tests/${TEST_TARGET}")
     else()
       # multi config
       add_custom_command(
-        TARGET ${LIB_TARGET_TESTS}
+        TARGET ${RUN_LIB_TESTS_TARGET}
         DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test.dummy"
         COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")      
     endif()

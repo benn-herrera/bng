@@ -12,11 +12,12 @@
 //    BT_CHECK(my_math_func_c(val) == expected2);
 //  });
 // tests are executed in file order.
-// entry point for test suite exe is in bng_test.h. just add tests and you're done.
+// entry point for test exe is in test_harness.h. just add tests and you're done.
 // cmake system will automatically add target test_my_math to the project.
-// each test cpp file constitutes a suite. each suite is a separate executable target.
-// each suite has run target run_[lib_name]_[test_name]. a single RUN_ALL_TESTS target is generated.
-// invoke tests with RUN_ALL_TESTS target in IDE or cmake --build . --target RUN_ALL_TESTS
+// each test cpp file constitutes a test module. each module is a separate executable target.
+// all of the modules for a given lib constitute a suite.
+// each suite has a run target run_[lib_name]_tests. a single RUN_ALL_TESTS target runs all suites.
+// you can manually invoke tests with RUN_ALL_TESTS target in IDE or cmake --build . --target RUN_ALL_TESTS
 #pragma once
 
 // * do not include anything but system utility headers in this file.
