@@ -71,7 +71,7 @@ if ! cmake ${GENERATOR} ${BUILD_TESTS} "${@}" "../src"; then
 fi
 
 if is_true ${TEST:-false}; then
-  if cmake --build . --target run_all_tests; then
+  if cmake --build . --target RUN_ALL_TESTS; then
     echo "test suites all passed."
   else
     echo "TESTS FAILED!" 1>&2
