@@ -3,10 +3,10 @@
 #include "core/3p/glm.h"
 
 namespace bng::engine {
-	class Engine {
-	public:
-		Engine() = default;
-		~Engine() = default;
-		int foo() const;
-	};
+  class Engine {
+  public:
+    Engine() = default;
+    ~Engine() = default;
+    int foo() const;
+  };
 }

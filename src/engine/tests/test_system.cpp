@@ -1,5 +1,5 @@
 #include "systems/system.h"
-#include "bng_test/bng_test.h"
+#include "test_harness/test_harness.h"
 
 using namespace bng::engine;
 

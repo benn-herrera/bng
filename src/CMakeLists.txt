@@ -6,13 +6,13 @@ set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo)
 # from the command line as they require setup to occur before project()
 # 
 if (CMAKE_SYSTEM_NAME)
-	include(cmake/platform_init.cmake)
+  include(cmake/platform_init.cmake)
 endif()
 
 project(bng VERSION 0.1.0 LANGUAGES CXX C)
 
 if (NOT BNG_PLATFORM)
-	include(cmake/platform_init.cmake)
+  include(cmake/platform_init.cmake)
 endif()
 
 include(cmake/platform_config.cmake)
@@ -23,9 +23,9 @@ set(CMAKE_INCLUDE "${PROJECT_SOURCE_DIR}/cmake")
 add_subdirectory(third_party)
 
 include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR} 
-	${CMAKE_CURRENT_SOURCE_DIR}/api
-	${CMAKE_CURRENT_SOURCE_DIR}/third_party
+  ${CMAKE_CURRENT_SOURCE_DIR} 
+  ${CMAKE_CURRENT_SOURCE_DIR}/api
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party
 )
 
 add_subdirectory(api)
@@ -34,10 +34,12 @@ add_subdirectory(render)
 add_subdirectory(engine)
 add_subdirectory(platform)
 
-add_custom_target(run_all_tests DEPENDS ${ALL_TEST_TARGETS})
-set_target_properties(
-	run_all_tests PROPERTIES 
-	EXCLUDE_FROM_ALL ${BNG_EXCLUDE_TESTS_FROM_ALL_BUILD}
-	EXCLUDE_FROM_DEFAULT_BUILD ${BNG_EXCLUDE_TESTS_FROM_ALL_BUILD}	
-	FOLDER "tests/"	
-	)
+if(ALL_TEST_TARGETS)
+  add_custom_target(run_all_tests DEPENDS ${ALL_TEST_TARGETS})
+  set_target_properties(
+    run_all_tests PROPERTIES 
+    EXCLUDE_FROM_ALL ${BNG_EXCLUDE_TESTS_FROM_DEFAULT_BUILD}
+    EXCLUDE_FROM_DEFAULT_BUILD TRUE
+    FOLDER "tests/" 
+    )
+endif()
