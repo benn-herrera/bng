@@ -1,7 +1,9 @@
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
+
 if(BNG_IS_DESKTOP)
-  #add_subdirectory(desktop)
+  add_subdirectory(desktop)
 elseif(BNG_IS_MOBILE)
-  #add_subdirectory(mobile)
+  add_subdirectory(mobile)
 else()
   message(FATAL_ERROR "unsupported platform type ${BNG_PLATFORM}")
 endif()
