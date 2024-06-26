@@ -1,27 +1,36 @@
-set(CMAKE_INCLUDE ${PROJECT_SOURCE_DIR}/cmake)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 17)
 
+set(CMAKE_INCLUDE ${PROJECT_SOURCE_DIR}/cmake)
+
 if(BNG_IS_WINDOWS)
   set(BNG_IS_DESKTOP TRUE)
-  add_compile_definitions(BNG_IS_WINDOWS BNG_IS_DESKTOP)
+  add_compile_definitions(BNG_IS_WINDOWS)
 elseif(BNG_IS_LINUX)
   set(BNG_IS_DESKTOP TRUE)  
-  add_compile_definitions(BNG_IS_LINUX BNG_IS_DESKTOP)  
+  add_compile_definitions(BNG_IS_LINUX)  
 elseif(BNG_IS_MACOS)
   set(BNG_IS_DESKTOP TRUE)
   set(BNG_IS_APPLE TRUE)  
-  add_compile_definitions(BNG_IS_MACOS BNG_IS_APPLE BNG_IS_DESKTOP)
+  add_compile_definitions(BNG_IS_MACOS BNG_IS_APPLE)
 elseif(BNG_IS_IOS)
   set(BNG_IS_MOBILE TRUE)
   set(BNG_IS_APPLE TRUE)
-  add_compile_definitions(BNG_IS_IOS BNG_IS_APPLE BNG_IS_MOBILE)  
+  add_compile_definitions(BNG_IS_IOS BNG_IS_APPLE)
 elseif(BNG_IS_ANDROID)
   set(BNG_IS_MOBILE TRUE) 
-  add_compile_definitions(BNG_IS_ANDROID BNG_IS_MOBILE) 
+  add_compile_definitions(BNG_IS_ANDROID) 
 else()
   message(FATAL_ERROR "add case for ${BNG_PLATFORM}")
+endif()
+
+
+if(BNG_IS_DESKTOP)
+  set(BNG_PLATFORM_TYPE desktop)
+  add_compile_definitions(BNG_IS_DESKTOP)
+elseif(BNG_IS_MOBILE)
+  set(BNG_PLATFORM_TYPE mobile)  
+  add_compile_definitions(BNG_IS_MOBILE)
 endif()
 
 

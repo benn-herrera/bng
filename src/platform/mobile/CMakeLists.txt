@@ -1,9 +1,5 @@
+set(SOURCES_GLOB GLOB) # don't recurse into subdirs
 include("${CMAKE_INCLUDE}/target_lib.cmake")
 
-if(BNG_IS_ANDROID)
-  add_subdirectory(android)
-elseif(IS_IOS)
-  add_subdirectory(ios)
-else()
-  message(FATAL_ERROR "unsupported mobile platform ${BNG_PLATFORM}")
-endif()
+include("${CMAKE_INCLUDE}/target_reset.cmake")
+add_subdirectory(${BNG_PLATFORM})
