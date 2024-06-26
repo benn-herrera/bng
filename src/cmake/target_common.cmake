@@ -4,10 +4,6 @@
 
 include("${CMAKE_INCLUDE}/test_macros.cmake")
 
-if(NOT DEFINED AUTO_AIO)
-  set(AUTO_AIO TRUE)
-endif()
-
 if (NOT "${TARGET}")
   get_filename_component(TARGET "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 endif()
@@ -25,7 +21,9 @@ file(GLOB_RECURSE SOURCES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURREN
 # defines TEST_SOURCES, TEST_HEADERS
 collect_test_sources()
 
-if(SOURCES AND AUTO_AIO)
+list(LENGTH SOURCES SOURCE_COUNT)
+
+if(SOURCES AND AUTO_AIO AND (SOURCE_COUNT GREATER 1))
   if(AIO_EXCLUDES)
     list(REMOVE_ITEM SOURCES ${AIO_EXCLUDES})
   endif()
