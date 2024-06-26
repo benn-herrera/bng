@@ -1,0 +1,7 @@
+if(BNG_IS_DESKTOP)
+  #add_subdirectory(desktop)
+elseif(BNG_IS_MOBILE)
+  #add_subdirectory(mobile)
+else()
+  message(FATAL_ERROR "unsupported platform type ${BNG_PLATFORM}")
+endif()
