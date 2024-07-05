@@ -4,7 +4,7 @@
 
 include("${CMAKE_INCLUDE}/test_macros.cmake")
 
-if (NOT "${TARGET}")
+if (NOT TARGET)
   get_filename_component(TARGET "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 endif()
 

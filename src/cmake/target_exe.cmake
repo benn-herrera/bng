@@ -26,4 +26,12 @@ set_target_properties(${TARGET}
     FOLDER "exes/"
 )
 
+# make the first exectuable the default project
+get_property(_VS_STARTUP_PROJECT DIRECTORY "${PROJECT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT)
+if(NOT _VS_STARTUP_PROJECT)
+  set_property(DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${TARGET}")
+  message("visual studio default project is ${TARGET}")
+endif()
+unset(_VS_STARTUP_PROJECT)
+
 forbid_exe_test_targets()
