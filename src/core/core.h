@@ -12,6 +12,14 @@
 #include <array>
 #include <filesystem>
 
+#if defined(_MSC_VER)
+# define BNG_EXPORT_API __declspec(dllexport)
+# define BNG_IMPORT_API __declspec(dllimport)
+#else
+# define BNG_EXPORT_API __attribute__((visibility("default")))
+# define BNG_IMPORT_API
+#endif
+
 #if defined(BNG_IS_WINDOWS)
 # if !defined(chdir)
 #   define chdir _chdir
