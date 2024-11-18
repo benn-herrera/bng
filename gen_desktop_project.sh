@@ -12,6 +12,15 @@ function is_true() {
   return 1
 }
 
+function is_in() {
+  local sub=${1}
+  local str=${2}
+  if [[ "${str/${sub}/}" != "${str}" ]]; then
+    return 0
+  fi
+  return 1
+}
+
 function usage_and_die() {
   cat << __EOF
 usage: ${THIS_SCRIPT} [--help] | [--clean] [--build] [cmake_arg1]...
@@ -31,22 +40,34 @@ GEN_CLEAN=${GEN_CLEAN:-""}
 BUILD=${BUILD:-""}
 TEST=${TEST:-""}
 
-while [[ -n "${1}" ]]; do
-  case "${1}" in
-    -h*|--h*|-u*|--u*) usage_and_die;;
-    --clean|-c) GEN_CLEAN=true; shift;;
-    --build|-b) BUILD=true; shift;;
-    --test|-t) TEST=true; shift;;
-    *) break;;
-  esac
-done
-
 case "$(uname)" in
   MINGW*) IS_WIN=true;;
   Darwin*) IS_MAC=true;;
   Linux*) IS_LNX=true; GENERATOR="-G=Ninja";;
   *) echo "unsupported platform $(uname)" 1>&2; exit 1;;
 esac
+
+# stupid pet trick. support ninja build on windows.
+if is_true ${IS_WIN:-false} && is_in '-G' "${*}" && is_in 'Ninja' "${*}" && ! is_in --msvc "${*}"; then
+  THIS_SCRIPT="${THIS_DIR}/${THIS_SCRIPT}"
+  script=$(cat << __EOF
+    call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+    "C:\Program Files\git\bin\bash.exe" "${THIS_SCRIPT}" --msvc ${@}    
+__EOF
+  )
+  exec cmd <<< "${script}"
+fi
+
+while [[ -n "${1}" ]]; do
+  case "${1}" in
+    -h*|--h*|-u*|--u*) usage_and_die;;
+    --clean|-c) GEN_CLEAN=true; shift;;
+    --build|-b) BUILD=true; shift;;
+    --test|-t) TEST=true; shift;;
+    --msvc) shift;;
+    *) break;;
+  esac
+done
 
 cd "${THIS_DIR}"
 

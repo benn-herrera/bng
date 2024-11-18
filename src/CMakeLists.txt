@@ -9,6 +9,11 @@ if (CMAKE_SYSTEM_NAME)
   include(cmake/platform_init.cmake)
 endif()
 
+get_filename_component(REPO_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
+if("${CMAKE_CURRENT_BINARY_DIR}" STREQUAL "${REPO_ROOT_DIR}" OR "${CMAKE_CURRENT_BINARY_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+  message(FATAL_ERROR "In-source building is not supported.")  
+endif()
+
 project(bng VERSION 0.1.0 LANGUAGES CXX C)
 
 if (NOT BNG_PLATFORM)
@@ -24,7 +29,6 @@ add_subdirectory(third_party)
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR} 
-  ${CMAKE_CURRENT_SOURCE_DIR}/api
   ${CMAKE_CURRENT_SOURCE_DIR}/third_party
 )
 
@@ -34,16 +38,4 @@ add_subdirectory(render)
 add_subdirectory(engine)
 add_subdirectory(platform)
 
-if(ALL_RUN_TEST_TARGETS)
-  add_custom_target(run_all_suites DEPENDS ${ALL_RUN_TEST_TARGETS})
-  set_target_properties(
-    run_all_suites PROPERTIES
-    EXCLUDE_FROM_ALL TRUE
-    EXCLUDE_FROM_DEFAULT_BUILD TRUE
-    FOLDER "tests/" 
-    )
-  add_custom_target(RUN_ALL_TESTS)
-  set_target_properties(RUN_ALL_TESTS PROPERTIES FOLDER "CMakePredefinedTargets")
-  add_custom_command(TARGET RUN_ALL_TESTS
-    COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target run_all_suites)
-endif()
+bng_add_run_all_tests_target()

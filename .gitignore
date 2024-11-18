@@ -1,6 +1,8 @@
 build/
+CMakeFiles/
+CMakeCache.txt
 .venv/
 *.log
 *.zip
 *.tgz
-*AIO.c*
+*_aio.c*
