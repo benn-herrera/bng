@@ -38,4 +38,4 @@ add_subdirectory(render)
 add_subdirectory(engine)
 add_subdirectory(platform)
 
-add_run_all_tests_target()
+bng_add_run_all_tests_target()
