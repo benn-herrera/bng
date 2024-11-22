@@ -67,7 +67,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ${BNG_USE_FOLDERS})
 # add a FORCE_REGEN target for easy regen when files are added/removed/renamed.
 add_custom_target(FORCE_REGEN DEPENDS "${CMAKE_BINARY_DIR}/noexist.txt")
 set_target_properties(FORCE_REGEN PROPERTIES FOLDER "CMakePredefinedTargets")
-add_custom_command(TARGET FORCE_REGEN 
+add_custom_command(TARGET FORCE_REGEN POST_BUILD
   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
   COMMAND "${CMAKE_COMMAND}" "${PROJECT_SOURCE_DIR}")
 
