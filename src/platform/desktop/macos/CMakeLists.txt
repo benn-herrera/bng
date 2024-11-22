@@ -1,1 +1,4 @@
-message(FATAL_ERROR "${BNG_PLATFORM} build not implemented yet.")
+set(TARGET bng)
+include("${CMAKE_INCLUDE}/target_exe.cmake")
+
+add_dependencies(${TARGET} core desktop)

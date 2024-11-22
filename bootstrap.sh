@@ -52,6 +52,7 @@ if [[ ! -f .venv/.activate ]]; then
   fi  
   echo "source \"${ACTIVATE}\"" > .venv/.activate
   source .venv/.activate
+  python3 -m pip install pip --upgrade
   python3 -m pip install cyclopts # requests numpy numpy-quaternion whatevs
 else
   echo "existing python 3.11+ .venv found"

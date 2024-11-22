@@ -46,13 +46,12 @@ macro(bng_add_lib_test_targets)
         # single config
         add_custom_command(
           TARGET ${RUN_LIB_SUITE_TARGET}
-          DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test.dummy"
+          POST_BUILD
           COMMAND "${CMAKE_BINARY_DIR}/tests/${TEST_TARGET}")
       else()
         # multi config
         add_custom_command(
           TARGET ${RUN_LIB_SUITE_TARGET}
-          DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/test.dummy"
           COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")      
       endif()
       target_link_libraries(${TEST_TARGET} ${TARGET})
@@ -72,7 +71,7 @@ macro(bng_add_run_all_tests_target)
       )
     add_custom_target(RUN_ALL_TESTS)
     set_target_properties(RUN_ALL_TESTS PROPERTIES FOLDER "CMakePredefinedTargets")
-    add_custom_command(TARGET RUN_ALL_TESTS
+    add_custom_command(TARGET RUN_ALL_TESTS POST_BUILD
       COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target run_all_suites)
   endif()
 endmacro()
