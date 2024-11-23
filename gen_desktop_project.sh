@@ -47,11 +47,11 @@ case "$(uname)" in
 esac
 
 # stupid pet trick. support ninja build on windows.
-if is_true ${IS_WIN:-false} && is_in '-G' "${*}" && is_in 'Ninja' "${*}" && ! is_in --msvc "${*}"; then
+if is_true ${IS_WIN:-false} && [[ "${GENERATOR}" == "Ninja" ]] && ! is_in --msvc "${*}"; then
   THIS_SCRIPT="${THIS_DIR}/${THIS_SCRIPT}"
   script=$(cat << __EOF
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
-    "C:\Program Files\git\bin\bash.exe" "${THIS_SCRIPT}" --msvc ${@}    
+    "C:\Program Files\git\bin\bash.exe" "${THIS_SCRIPT}" --msvc ${@}
 __EOF
   )
   exec cmd <<< "${script}"
@@ -63,6 +63,7 @@ while [[ -n "${1}" ]]; do
     --clean|-c) GEN_CLEAN=true; shift;;
     --build|-b) BUILD=true; shift;;
     --test|-t) TEST=true; shift;;
+    --msvc) shift;;
     *) break;;
   esac
 done
