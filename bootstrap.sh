@@ -7,7 +7,7 @@ cd "${THIS_DIR}"
 
 case "$(uname)" in
   MINGW*) IS_WIN=true;;
-  Darwin*) IS_MAC=true;;
+  Darwin*) IS_MAC=true;;;
   Linux*) IS_LNX=true;;
   *) echo "unsupported platform $(uname)" 1>&2; exit 1;;
 esac
@@ -18,12 +18,22 @@ if ! CMAKE=$(which cmake 2> /dev/null); then
 fi
 echo "cmake found."
 
-if ${IS_LNX:-false}; then
-  if ! NINJA=$(which ninja 2> /dev/null); then
-    echo "ninja must be in path." 1>&2
-    exit 1
-  fi
+if ! VCPKG=$(which vcpkg 2> /dev/null); then
+  echo "vcpkg must be in path." 1>&2
+  exit 1
+fi
+echo "vcpkg found."
+
+if NINJA=$(which ninja 2> /dev/null); then
   echo "ninja found."
+  if ${IS_WIN:-false}; then
+    echo "to build with ninja use -G Ninja when running gen_desktop_project.sh"
+  fi
+elif ${IS_LNX:-false}; then
+  echo "ninja must be in path." 1>&2
+  exit 1
+else
+  echo "ninja not in path. building with ninja will not be available."
 fi
 
 if [[ ! -f .venv/.activate ]]; then

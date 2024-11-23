@@ -15,16 +15,13 @@ function is_true() {
 function is_in() {
   local sub=${1}
   local str=${2}
-  if [[ "${str/${sub}/}" != "${str}" ]]; then
-    return 0
-  fi
-  return 1
+  [[ "${str/${sub}/}" != "${str}" ]]
 }
 
 function usage_and_die() {
   cat << __EOF
-usage: ${THIS_SCRIPT} [--help] | [--clean] [--build] [cmake_arg1]...
-    note: bootstrap.h must have been run first.
+usage: ${THIS_SCRIPT} [--help] | [--clean] [--build] [--test] [cmake_arg1]...
+    note: bootstrap.sh must have been run first.
     --build: build after generating project
     --test: build and run tests after generating project. exit status reflects test result.
     --clean: delete build directory first
@@ -35,15 +32,17 @@ __EOF
   exit ${1:-0}
 }
 
+
 # respect envars
 GEN_CLEAN=${GEN_CLEAN:-""}
 BUILD=${BUILD:-""}
 TEST=${TEST:-""}
+GENERATOR=${GENERATOR:-""}
 
 case "$(uname)" in
   MINGW*) IS_WIN=true;;
-  Darwin*) IS_MAC=true;;
-  Linux*) IS_LNX=true; GENERATOR="-G=Ninja";;
+  Darwin*) IS_MAC=true; GENERATOR=${GENERATOR:-Ninja};;
+  Linux*) IS_LNX=true; GENERATOR=${GENERATOR:-Ninja};;
   *) echo "unsupported platform $(uname)" 1>&2; exit 1;;
 esac
 
@@ -64,10 +63,13 @@ while [[ -n "${1}" ]]; do
     --clean|-c) GEN_CLEAN=true; shift;;
     --build|-b) BUILD=true; shift;;
     --test|-t) TEST=true; shift;;
-    --msvc) shift;;
     *) break;;
   esac
 done
+
+if is_true ${TEST:-false}; then
+  BUILD=true
+fi
 
 cd "${THIS_DIR}"
 
@@ -76,28 +78,51 @@ if [[ ! -f .venv/.activate ]]; then
   exit 1
 fi
 
-if ${GEN_CLEAN:-false}; then
+if is_true ${GEN_CLEAN:-false}; then
   (/bin/rm -rf build 2>&1) > /dev/null
 fi
 
 mkdir -p build
 cd build
 
-if is_true ${TEST:-false}; then
-  BUILD_TESTS="-DBNG_BUILD_TESTS=TRUE"
-fi
-
-if ! cmake ${GENERATOR} ${BUILD_TESTS} "${@}" "../src"; then
-  exit 1
-fi
-
-if is_true ${TEST:-false}; then
-  if cmake --build . --target RUN_ALL_TESTS; then
-    echo "test suites all passed."
-  else
-    echo "TESTS FAILED!" 1>&2
-    exit 1
+function run_cmake_gen() {
+  if [[ -n "${GENERATOR}" ]]; then
+    set -- "-G=${GENERATOR}" "${@}"
   fi
-elif is_true ${BUILD:-false}; then
-  exec cmake --build .
-fi
+  if is_true ${TEST:-false}; then
+    set -- "${@}" -DBNG_BUILD_TESTS=TRUE
+  fi
+  if ! cmake "${@}" "../src"; then
+    # if running on macos and the failure is no CMAKE_CXX_COMPILER could be found try
+    # sudo xcode-select --reset
+    # per https://stackoverflow.com/questions/41380900/cmake-error-no-cmake-c-compiler-could-be-found-using-xcode-and-glfw
+    # this step was required after first time installation of xcode.
+    return 1
+  fi
+}
+
+function run_cmake_build() {
+  if ! is_true ${BUILD:-false}; then
+    return 0
+  fi
+  if ! cmake --build .; then
+    echo "BUILD FAILED!" 1>&2    
+    return 1
+  fi
+}
+
+function run_cmake_test() {
+  if ! is_true ${TEST:-false}; then
+    return 0
+  fi
+  if ! cmake --build . --target RUN_ALL_TESTS; then
+    echo "TESTS FAILED!" 1>&2
+    return 1
+  fi
+  echo "test suites all passed."
+}
+
+run_cmake_gen "${@}" && \
+  run_cmake_build && \
+  run_cmake_test
+
