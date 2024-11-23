@@ -19,10 +19,12 @@ fi
 echo "cmake found."
 
 if ! VCPKG=$(which vcpkg 2> /dev/null); then
-  echo "vcpkg must be in path." 1>&2
+  echo "vcpkg must be configured and in path." 1>&2
   exit 1
 fi
 echo "vcpkg found."
+
+"${VCPKG}" integrate install
 
 if NINJA=$(which ninja 2> /dev/null); then
   echo "ninja found."

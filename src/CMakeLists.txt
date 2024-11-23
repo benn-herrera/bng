@@ -1,10 +1,13 @@
-cmake_minimum_required(VERSION 3.22.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.30.1 FATAL_ERROR)
+
+# do this first!
+set(VCPKG_MANIFEST_MODE TRUE)
+#set(CMAKE_TOOLCHAIN_FILE $ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 
 set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo)
 
 # some platform builds will have defined CMAKE_SYSTEM_NAME
 # from the command line as they require setup to occur before project()
-# 
 if (CMAKE_SYSTEM_NAME)
   include(cmake/platform_init.cmake)
 endif()
@@ -15,6 +18,8 @@ if("${CMAKE_CURRENT_BINARY_DIR}" STREQUAL "${REPO_ROOT_DIR}" OR "${CMAKE_CURRENT
 endif()
 
 project(bng VERSION 0.1.0 LANGUAGES CXX C)
+
+find_package(glm CONFIG REQUIRED)
 
 if (NOT BNG_PLATFORM)
   include(cmake/platform_init.cmake)

@@ -49,6 +49,7 @@ esac
 # stupid pet trick. support ninja build on windows.
 if is_true ${IS_WIN:-false} && [[ "${GENERATOR}" == "Ninja" ]] && ! is_in --msvc "${*}"; then
   THIS_SCRIPT="${THIS_DIR}/${THIS_SCRIPT}"
+  # this hard path is brittle. if this becomes more than a stupid pet trick add resiliency logic.
   script=$(cat << __EOF
     call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
     "C:\Program Files\git\bin\bash.exe" "${THIS_SCRIPT}" --msvc ${@}
@@ -79,12 +80,18 @@ if [[ ! -f .venv/.activate ]]; then
   exit 1
 fi
 
-if is_true ${GEN_CLEAN:-false}; then
-  (/bin/rm -rf build 2>&1) > /dev/null
+VCPKG_ROOT=${VCPKG_ROOT:-""}
+if [[ ! -d "${VCPKG_ROOT}" ]]; then
+  export VCPKG_ROOT=$(dirname "$(which vcpkg)")
 fi
 
-mkdir -p build
-cd build
+BUILD_DIR=build_desktop
+
+if is_true ${GEN_CLEAN:-false}; then
+  (/bin/rm -rf "${BUILD_DIR}" 2>&1) > /dev/null
+fi
+
+mkdir -p "${BUILD_DIR}"
 
 function run_cmake_gen() {
   if [[ -n "${GENERATOR}" ]]; then
@@ -93,7 +100,8 @@ function run_cmake_gen() {
   if is_true ${TEST:-false}; then
     set -- "${@}" -DBNG_BUILD_TESTS=TRUE
   fi
-  if ! cmake "${@}" "../src"; then
+  set -- "-DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" "${@}"  
+  if ! (set -x && cmake "${@}" -S src -B "${BUILD_DIR}"); then
     # if running on macos and the failure is no CMAKE_CXX_COMPILER could be found try
     # sudo xcode-select --reset
     # per https://stackoverflow.com/questions/41380900/cmake-error-no-cmake-c-compiler-could-be-found-using-xcode-and-glfw
@@ -106,7 +114,7 @@ function run_cmake_build() {
   if ! is_true ${BUILD:-false}; then
     return 0
   fi
-  if ! cmake --build .; then
+  if ! (cd "${BUILD_DIR}"; cmake --build .); then
     echo "BUILD FAILED!" 1>&2    
     return 1
   fi
@@ -116,7 +124,7 @@ function run_cmake_test() {
   if ! is_true ${TEST:-false}; then
     return 0
   fi
-  if ! cmake --build . --target RUN_ALL_TESTS; then
+  if ! (cd "${BUILD_DIR}"; cmake --build . --target RUN_ALL_TESTS); then
     echo "TESTS FAILED!" 1>&2
     return 1
   fi

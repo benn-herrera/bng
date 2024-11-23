@@ -1,7 +1,9 @@
+.venv/
 build/
 CMakeFiles/
+vcpkg_installed/
+
 CMakeCache.txt
-.venv/
 *.log
 *.zip
 *.tgz
