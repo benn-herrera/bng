@@ -5,6 +5,8 @@ THIS_DIR=$(cd "${THIS_DIR}"; pwd)
 
 cd "${THIS_DIR}"
 
+VCPKG_DIR=src/vcpkg
+
 case "$(uname)" in
   MINGW*) IS_WIN=true;;
   Darwin*) IS_MAC=true;;
@@ -18,12 +20,23 @@ if ! CMAKE=$(which cmake 2> /dev/null); then
 fi
 echo "cmake found."
 
-if ${IS_LNX:-false}; then
-  if ! NINJA=$(which ninja 2> /dev/null); then
-    echo "ninja must be in path." 1>&2
-    exit 1
-  fi
+if [[ ! -d "${VCPKG_DIR}" ]]; then
+  git clone https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
+else
+  (cd "${VCPKG_DIR}" && git pull || exit 1)
+fi
+(cd "${VCPKG_DIR}" && ./bootstrap-vcpkg.sh && ./vcpkg integrate install || exit 1)
+
+if NINJA=$(which ninja 2> /dev/null); then
   echo "ninja found."
+  if ${IS_WIN:-false}; then
+    echo "to build with ninja use -G Ninja when running gen_desktop_project.sh"
+  fi
+elif ${IS_LNX:-false}; then
+  echo "ninja must be in path." 1>&2
+  exit 1
+else
+  echo "ninja not in path. building with ninja will not be available."
 fi
 
 if [[ ! -f .venv/.activate ]]; then

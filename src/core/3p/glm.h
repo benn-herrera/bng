@@ -7,7 +7,7 @@
 #endif
 
 // TODO: set project-wide GLM options here.
-#include "third_party/glm/glm/glm.hpp"
+#include "glm/glm.hpp"
 
 #if defined(BNG_IS_MSVC)
 # pragma warning(pop)
