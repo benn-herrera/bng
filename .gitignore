@@ -3,8 +3,9 @@ build/
 CMakeFiles/
 vcpkg_installed/
 
-CMakeCache.txt
-*.log
-*.zip
-*.tgz
 *_aio.c*
+CMakeCache.txt
+.DS_Store
+*.log
+*.tgz
+*.zip
