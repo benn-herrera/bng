@@ -13,23 +13,14 @@ endif()
 # we don't need 5 debug configurations
 set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo)
 
-# vcpkg init
-
-# if a platform toolchain file is specified
-if(CMAKE_TOOLCHAIN_FILE AND NOT CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg.cmake$")
-  # shift it to the vcpkg chain load variable
-  set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE "${CMAKE_TOOLCHAIN_FILE}")
-  unset(CMAKE_TOOLCHAIN_FILE)
-endif()
-
-# give vcpkg its chance to shim
-set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-
 # some platform builds will have defined CMAKE_SYSTEM_NAME
 # from the command line as they require setup to occur before project()
 if (CMAKE_SYSTEM_NAME)
   include(cmake/platform_init.cmake)
 endif()
+
+# set up pre-project values for 3rd party dependency system
+include(cmake/third_party_init.cmake)
 
 #
 # project call + project config
