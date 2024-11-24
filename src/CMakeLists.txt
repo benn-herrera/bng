@@ -4,24 +4,31 @@ cmake_minimum_required(VERSION 3.30.1 FATAL_ERROR)
 # pre-init section - before project() call
 #
 
-# vcpkg init
-set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
-#get_filename_component(VCPKG_MANIFEST_DIR "$ENV{VCPKG_ROOT}" DIRECTORY)
-#set(VCPKG_MANIFEST_MODE TRUE)
+# disallow in-source builds
+get_filename_component(REPO_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
+if("${CMAKE_CURRENT_BINARY_DIR}" STREQUAL "${REPO_ROOT_DIR}" OR "${CMAKE_CURRENT_BINARY_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+  message(FATAL_ERROR "In-source building is not supported.")  
+endif()
 
 # we don't need 5 debug configurations
 set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo)
+
+# vcpkg init
+
+# if a platform toolchain file is specified
+if(CMAKE_TOOLCHAIN_FILE AND NOT CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg.cmake$")
+  # shift it to the vcpkg chain load variable
+  set(VCPKG_CHAINLOAD_TOOLCHAIN_FILE "${CMAKE_TOOLCHAIN_FILE}")
+  unset(CMAKE_TOOLCHAIN_FILE)
+endif()
+
+# give vcpkg its chance to shim
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
 
 # some platform builds will have defined CMAKE_SYSTEM_NAME
 # from the command line as they require setup to occur before project()
 if (CMAKE_SYSTEM_NAME)
   include(cmake/platform_init.cmake)
-endif()
-
-# disallow in-source builds
-get_filename_component(REPO_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
-if("${CMAKE_CURRENT_BINARY_DIR}" STREQUAL "${REPO_ROOT_DIR}" OR "${CMAKE_CURRENT_BINARY_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
-  message(FATAL_ERROR "In-source building is not supported.")  
 endif()
 
 #

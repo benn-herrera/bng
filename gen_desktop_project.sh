@@ -108,6 +108,13 @@ if ${GEN_CLEAN}; then
 fi
 
 function run_cmake_gen() {
+  if [[ -f "${BUILD_DIR}/CMakeCache.txt" ]]; then
+    if ! (set -x && cd "${BUILD_DIR}" && cmake . "${@}"); then
+      return 1
+    fi
+    return 0
+  fi
+
   if [[ -n "${CMAKE_GENERATOR}" ]]; then
     set -- "-G=${CMAKE_GENERATOR}" "${@}"
   fi
