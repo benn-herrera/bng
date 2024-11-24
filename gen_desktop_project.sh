@@ -36,6 +36,7 @@ __EOF
 # respect envars
 BUILD=${BUILD:-false}
 CMAKE_GENERATOR=${CMAKE_GENERATOR:-}
+CMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE:-}
 GEN_CLEAN=${GEN_CLEAN:-false}
 TEST=${TEST:-false}
 VCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET:-}
@@ -123,6 +124,9 @@ function run_cmake_gen() {
   fi
   if [[ -n "${VCPKG_TARGET_TRIPLET:-}" ]]; then
     set -- "-DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}"
+  fi
+  if [[ -n "${CMAKE_TOOLCHAIN_FILE}" ]]; then
+    set -- "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "${@}"
   fi
   set -- "${@}"  
   if ! (set -x && cmake "${@}" -S src -B "${BUILD_DIR}"); then
