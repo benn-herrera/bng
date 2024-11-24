@@ -1,6 +1,0 @@
-set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-set(THIRD_PARTY_DIR "${THIRD_PARTY_DIR}" PARENT_SCOPE)
-include(${CMAKE_INCLUDE}/third_party.cmake)
-
-bng_add_3p_header_lib(stb https://github.com/nothings/stb.git master . GLOB)
-bng_add_3p_header_lib(mongoose https://github.com/cesanta/mongoose.git 7.14 . GLOB)

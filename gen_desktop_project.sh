@@ -34,20 +34,41 @@ __EOF
 
 
 # respect envars
-GEN_CLEAN=${GEN_CLEAN:-""}
-BUILD=${BUILD:-""}
-TEST=${TEST:-""}
-GENERATOR=${GENERATOR:-""}
+BUILD=${BUILD:-false}
+CMAKE_GENERATOR=${CMAKE_GENERATOR:-}
+GEN_CLEAN=${GEN_CLEAN:-false}
+TEST=${TEST:-false}
+VCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET:-}
+
+IS_LNX=false
+IS_MAC=false
+IS_WIN=false
+
+VCPKG_DIR=src/vcpkg
+export VCPKG_ROOT=${THIS_DIR}/${VCPKG_DIR}
+export PATH=${VCPKG_ROOT}:${PATH}
+
+VCPKG=${VCPKG_ROOT}/vcpkg
 
 case "$(uname)" in
+  Linux*) IS_LNX=true;;
+  Darwin*) IS_MAC=true;;
   MINGW*) IS_WIN=true;;
-  Darwin*) IS_MAC=true; GENERATOR=${GENERATOR:-Ninja};;
-  Linux*) IS_LNX=true; GENERATOR=${GENERATOR:-Ninja};;
   *) echo "unsupported platform $(uname)" 1>&2; exit 1;;
 esac
 
+if ${IS_LNX}; then
+  CMAKE_GENERATOR=${CMAKE_GENERATOR:-Ninja}  
+elif ${IS_MAC}; then
+  CMAKE_GENERATOR=${CMAKE_GENERATOR:-Ninja}  
+elif ${IS_WIN}; then
+  VCPKG=${VCPKG}.exe
+else
+  echo "add setup for $(uname)." 1>&2; exit 1
+fi
+
 # stupid pet trick. support ninja build on windows.
-if is_true ${IS_WIN:-false} && [[ "${GENERATOR}" == "Ninja" ]] && ! is_in --msvc "${*}"; then
+if ${IS_WIN} && [[ "${CMAKE_GENERATOR}" == "Ninja" ]] && ! is_in --msvc "${*}"; then
   THIS_SCRIPT="${THIS_DIR}/${THIS_SCRIPT}"
   # this hard path is brittle. if this becomes more than a stupid pet trick add resiliency logic.
   script=$(cat << __EOF
@@ -69,38 +90,34 @@ while [[ -n "${1}" ]]; do
   esac
 done
 
-if is_true ${TEST:-false}; then
+if ${TEST}; then
   BUILD=true
 fi
 
 cd "${THIS_DIR}"
 
-if [[ ! -f .venv/.activate ]]; then
+if ! [[ -f .venv/.activate && -x "${VCPKG}" ]]; then
   echo "run bootstrap.sh first." 2>&1
   exit 1
 fi
 
-VCPKG_ROOT=${VCPKG_ROOT:-""}
-if [[ ! -d "${VCPKG_ROOT}" ]]; then
-  export VCPKG_ROOT=$(dirname "$(which vcpkg)")
-fi
-
 BUILD_DIR=build_desktop
 
-if is_true ${GEN_CLEAN:-false}; then
+if ${GEN_CLEAN}; then
   (/bin/rm -rf "${BUILD_DIR}" 2>&1) > /dev/null
 fi
 
-mkdir -p "${BUILD_DIR}"
-
 function run_cmake_gen() {
-  if [[ -n "${GENERATOR}" ]]; then
-    set -- "-G=${GENERATOR}" "${@}"
+  if [[ -n "${CMAKE_GENERATOR}" ]]; then
+    set -- "-G=${CMAKE_GENERATOR}" "${@}"
   fi
-  if is_true ${TEST:-false}; then
+  if ${TEST}; then
     set -- "${@}" -DBNG_BUILD_TESTS=TRUE
   fi
-  set -- "-DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" "${@}"  
+  if [[ -n "${VCPKG_TARGET_TRIPLET:-}" ]]; then
+    set -- "-DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}"
+  fi
+  set -- "${@}"  
   if ! (set -x && cmake "${@}" -S src -B "${BUILD_DIR}"); then
     # if running on macos and the failure is no CMAKE_CXX_COMPILER could be found try
     # sudo xcode-select --reset
@@ -111,20 +128,20 @@ function run_cmake_gen() {
 }
 
 function run_cmake_build() {
-  if ! is_true ${BUILD:-false}; then
+  if ! ${BUILD}; then
     return 0
   fi
-  if ! (cd "${BUILD_DIR}"; cmake --build .); then
+  if ! cmake --build "${BUILD_DIR}"; then
     echo "BUILD FAILED!" 1>&2    
     return 1
   fi
 }
 
 function run_cmake_test() {
-  if ! is_true ${TEST:-false}; then
+  if ! ${TEST}; then
     return 0
   fi
-  if ! (cd "${BUILD_DIR}"; cmake --build . --target RUN_ALL_TESTS); then
+  if ! cmake --build "${BUILD_DIR}" --target RUN_ALL_TESTS; then
     echo "TESTS FAILED!" 1>&2
     return 1
   fi
@@ -134,4 +151,3 @@ function run_cmake_test() {
 run_cmake_gen "${@}" && \
   run_cmake_build && \
   run_cmake_test
-
