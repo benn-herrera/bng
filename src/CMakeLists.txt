@@ -13,6 +13,8 @@ endif()
 # we don't need 5 debug configurations
 set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo)
 
+include(cmake/host_init.cmake)
+
 # some platform builds will have defined CMAKE_SYSTEM_NAME
 # from the command line as they require setup to occur before project()
 if (CMAKE_SYSTEM_NAME)
@@ -33,9 +35,8 @@ if (NOT BNG_PLATFORM)
 endif()
 
 include(cmake/platform_config.cmake)
-include(cmake/commands.cmake)
-
 include(cmake/third_party.cmake)
+include(cmake/commands.cmake)
 
 include_directories(
   "${CMAKE_CURRENT_SOURCE_DIR}"
