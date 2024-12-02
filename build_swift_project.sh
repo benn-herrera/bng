@@ -20,10 +20,13 @@ function is_in() {
 
 function usage_and_die() {
   cat << __EOF
-usage: ${THIS_SCRIPT} [--help] | [--clean] [--ios] [--ios-sim] [cmake_arg1]...
+usage: ${THIS_SCRIPT} [--help] | [--clean] [--ios|--ios-release|--no-ios] [--ios-sim|--no-ios] [cmake_arg1]...
     note: bootstrap.sh must have been run first.
-    --ios: build for ios device
-    --ios-sim: build for ios simulator    
+    --ios: build debug for ios device
+    --ios-release: build release for ios device
+    --no-ios: no ios device build
+    --ios-sim: build debug for ios simulator
+    --no-ios-sim: no ios simulator build   
     --clean: delete build directory first
     any cmake args must come after --clean, --build.
     src/cmake/options.cmake:
@@ -36,8 +39,17 @@ __EOF
 # respect envars
 BUILD=${BUILD:-false}
 GEN_CLEAN=${GEN_CLEAN:-false}
-BUILD_IOS=${BUILD_IOS:-false}
-BUILD_IOS_SIM=${BUILD_IOS_SIM:-true}
+BUILD_IOS=${BUILD_IOS:-}
+BUILD_IOS_SIM=${BUILD_IOS_SIM:-Debug}
+#CMAKE_GENERATOR=${CMAKE_GENERATOR:-"Ninja Multi-Config"}
+CMAKE_GENERATOR=${CMAKE_GENERATOR:-"Xcode"}
+
+if [[ "${BUILD_IOS}" == "None" ]]; then
+  BUILD_IOS=
+fi
+if [[ "${BUILD_IOS_SIM}" == "None" ]]; then
+  BUILD_IOS_SIM=
+fi
 
 VCPKG_DIR=src/vcpkg
 export VCPKG_ROOT=${THIS_DIR}/${VCPKG_DIR}
@@ -54,8 +66,11 @@ while [[ -n "${1}" ]]; do
   case "${1}" in
     -h*|--h*|-u*|--u*) usage_and_die;;
     --clean|-c) GEN_CLEAN=true; shift;;
-    --build-ios|-ios) BUILD_IOS==true; shift;;
-    --build-ios-sim*) BUILD_IOS_SIM==true; shift;;
+    --no-ios) BUILD_IOS=; shift;;
+    --no-ios-sim*) BUILD_IOS_SIM=; shift;;
+    --ios) BUILD_IOS=Debug; shift;;
+    --ios-rel*) BUILD_IOS=RelWithDebInfo; shift;;
+    --ios-sim) BUILD_IOS_SIM=Debug; shift;;
     *) break;;
   esac
 done
@@ -79,8 +94,8 @@ function run_cmake_gen() {
     return 0
   fi
 
-  if [[ -n "${CMAKE_SYSTEM_NAME:-}" ]]; then
-    set -- "-DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}" "${@}"
+  if [[ -n "${CMAKE_BUILD_TYPE:-}" ]]; then
+    set -- "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}" "${@}"
   fi
   if [[ -n "${VCPKG_TARGET_TRIPLET:-}" ]]; then
     set -- "-DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}" "${@}"
@@ -88,10 +103,7 @@ function run_cmake_gen() {
   if [[ -n "${BNG_OPTIMIZED_BUILD_TYPE:-}" ]]; then
     set -- "-DBNG_OPTIMIZED_BUILD_TYPE=${BNG_OPTIMIZED_BUILD_TYPE}" "${@}"
   fi
-  #if [[ -n "${CMAKE_TOOLCHAIN_FILE}" ]]; then
-  #  set -- "-DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "${@}"
-  #fi
-  set -- -G="Xcode" -DBNG_BUILD_TESTS=FALSE "${@}"
+  set -- -G="${CMAKE_GENERATOR}"  -DCMAKE_SYSTEM_NAME=iOS -DBNG_BUILD_TESTS=FALSE "${@}"
   if ! (cmake "${@}" -S src -B "${BUILD_DIR}"); then
     # if running on macos and the failure is no CMAKE_CXX_COMPILER could be found try
     # sudo xcode-select --reset
@@ -111,16 +123,16 @@ function run_cmake_build() {
   fi
 }
 
-if ${BUILD_IOS}; then
+if [[ -n "${BUILD_IOS}" ]]; then
   ( BUILD_DIR=build_ios &&
-    CMAKE_SYSTEM_NAME=iOS &&
-    VCPKG_TARGET_TRIPLET=arm64-ios &&
+    CMAKE_BUILD_TYPE="${BUILD_IOS}" &&
     run_cmake_gen "${@}" &&
     run_cmake_build )
 fi
-if ${BUILD_IOS_SIM}; then
+
+if [[ -n "${BUILD_IOS_SIM}" ]]; then
   ( BUILD_DIR=build_ios_simulator &&
-    CMAKE_SYSTEM_NAME=iOS &&    
+    CMAKE_BUILD_TYPE="${BUILD_IOS_SIM}" &&
     VCPKG_TARGET_TRIPLET=arm64-ios-simulator &&
     SDK_TARGET=iphonesimulator &&
     BNG_OPTIMIZED_BUILD=BNG_DEBUG &&

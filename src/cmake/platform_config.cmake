@@ -38,8 +38,6 @@ elseif(BNG_IS_MOBILE)
 endif()
 
 
-# message(FATAL_ERROR "BNG_PLATORM=${BNG_PLATFORM} BNG_PLATFORM_TYPE=${BNG_PLATFORM_TYPE} BNG_IS_APPLE=${BNG_IS_APPLE}")
-
 if(BNG_IS_WINDOWS)
   set(BNG_IS_MSVC TRUE)
 else()
@@ -84,6 +82,7 @@ set(_RELAY_VARS
 foreach(VAR IN LISTS _RELAY_VARS)
   if(${${VAR}})
     add_compile_definitions(${VAR})
+    # message("#define(${VAR}")
   endif()
 endforeach()
 
