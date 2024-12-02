@@ -11,7 +11,12 @@ if("${CMAKE_CURRENT_BINARY_DIR}" STREQUAL "${REPO_ROOT_DIR}" OR "${CMAKE_CURRENT
 endif()
 
 # we don't need 5 debug configurations
-set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo)
+set(CMAKE_CONFIGURATION_TYPES Debug RelWithDebInfo CACHE STRING "" FORCE)
+
+# Release config always has debug symbols.
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "" FORCE)
+endif()
 
 include(cmake/host_init.cmake)
 

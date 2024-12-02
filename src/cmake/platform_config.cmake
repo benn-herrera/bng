@@ -1,6 +1,10 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 17)
 
+# WTF do we even have to do this? shouldn't this variable just be set?
+# https://stackoverflow.com/questions/31661264/how-to-check-if-generator-is-a-multi-config-generator-in-a-cmakelists-txt
+get_property(BNG_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 set(CMAKE_INCLUDE ${PROJECT_SOURCE_DIR}/cmake)
 
 if(BNG_IS_WINDOWS)
@@ -33,6 +37,8 @@ elseif(BNG_IS_MOBILE)
   add_compile_definitions(BNG_IS_MOBILE)
 endif()
 
+
+# message(FATAL_ERROR "BNG_PLATORM=${BNG_PLATFORM} BNG_PLATFORM_TYPE=${BNG_PLATFORM_TYPE} BNG_IS_APPLE=${BNG_IS_APPLE}")
 
 if(BNG_IS_WINDOWS)
   set(BNG_IS_MSVC TRUE)

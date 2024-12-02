@@ -13,7 +13,7 @@ include_directories(
 find_package(glm REQUIRED CONFIGURE)
 
 # for link libraries will need to add something like
-#   target_link_libraries(${TARGET} PRIVATE DEP_NAME::DEP_NAME)
+#   bng_add_link_libraries(PRIVATE DEP_NAME::DEP_NAME)
 # to the CMakeLists.txt 
 find_package(flatbuffers REQUIRED CONFIGURE)
 

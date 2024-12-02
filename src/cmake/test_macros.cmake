@@ -42,17 +42,15 @@ macro(bng_add_lib_test_targets)
           FOLDER "tests/${TARGET}_suite"
       )
       add_dependencies(${RUN_LIB_SUITE_TARGET} ${TEST_TARGET})
-      if((CMAKE_GENERATOR MATCHES "Ninja") OR (CMAKE_GENERATOR MATCHES "Make"))
-        # single config
+      if(BNG_GENERATOR_IS_MULTI_CONFIG)
+                add_custom_command(
+          TARGET ${RUN_LIB_SUITE_TARGET}
+          COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")      
+      else()
         add_custom_command(
           TARGET ${RUN_LIB_SUITE_TARGET}
           POST_BUILD
           COMMAND "${CMAKE_BINARY_DIR}/tests/${TEST_TARGET}")
-      else()
-        # multi config
-        add_custom_command(
-          TARGET ${RUN_LIB_SUITE_TARGET}
-          COMMAND "${CMAKE_BINARY_DIR}/tests/$<IF:$<CONFIG:Debug>,Debug,RelWithDebInfo>/${TEST_TARGET}")      
       endif()
       target_link_libraries(${TEST_TARGET} ${TARGET})
       unset(TEST_TARGET)
