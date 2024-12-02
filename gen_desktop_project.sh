@@ -149,20 +149,19 @@ function run_cmake_build() {
     echo "BUILD FAILED!" 1>&2    
     return 1    
   fi
-  # when testing verify release build config compiles.
-  #if ${TEST}; then
-  #  if ! cmake --build "${BUILD_DIR}" --parallel --config RelWithDebInfo; then
-  #    echo "BUILD FAILED!" 1>&2    
-  #    return 1    
-  #  fi
-  #fi  
+  if ${TEST}; then
+    if ! cmake --build "${BUILD_DIR}" --parallel --config RelWithDebInfo; then
+      echo "BUILD FAILED!" 1>&2    
+      return 1    
+    fi
+  fi  
 }
 
 function run_cmake_test() {
   if ! ${TEST}; then
     return 0
   fi
-  if ! cmake --build "${BUILD_DIR}" --target RUN_ALL_TESTS; then
+  if ! cmake --build "${BUILD_DIR}" --parallel --target RUN_ALL_TESTS; then
     echo "TESTS FAILED!" 1>&2
     return 1
   fi
