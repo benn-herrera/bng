@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -x
 THIS_SCRIPT=$(basename "${0}")
 THIS_DIR=$(dirname "${0}")
 # can't rely on realpath existing
@@ -36,7 +36,7 @@ __EOF
 # respect envars
 BUILD=${BUILD:-false}
 GEN_CLEAN=${GEN_CLEAN:-false}
-BUILD_IOS=${BUUILD_IOS:-false}
+BUILD_IOS=${BUILD_IOS:-false}
 BUILD_IOS_SIM=${BUILD_IOS_SIM:-true}
 
 VCPKG_DIR=src/vcpkg
@@ -59,10 +59,6 @@ while [[ -n "${1}" ]]; do
     *) break;;
   esac
 done
-
-if ${TEST}; then
-  BUILD=true
-fi
 
 cd "${THIS_DIR}"
 
@@ -124,6 +120,7 @@ if ${BUILD_IOS}; then
 fi
 if ${BUILD_IOS_SIM}; then
   ( BUILD_DIR=build_ios_simulator &&
+    CMAKE_SYSTEM_NAME=iOS &&    
     VCPKG_TARGET_TRIPLET=arm64-ios-simulator &&
     SDK_TARGET=iphonesimulator &&
     BNG_OPTIMIZED_BUILD=BNG_DEBUG &&

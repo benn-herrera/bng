@@ -46,6 +46,10 @@ else()
   set(BNG_IS_CLANG TRUE)  
 endif()
 
+if(BNG_IS_APPLE AND VCPKG_TARGET_TRIPLET MATCHES simulator)
+  set(BNG_IS_SIMULATOR TRUE)
+endif()
+
 
 if(BNG_IS_CLANG)
   add_compile_definitions(BNG_IS_CLANG) 
@@ -58,13 +62,36 @@ else()
 endif()
 
 
-include("${CMAKE_INCLUDE}/options.cmake")
-
-
 add_compile_definitions(
   $<IF:$<CONFIG:Debug>,BNG_DEBUG,>
-  $<IF:$<CONFIG:RelWithDebInfo>,${BNG_OPTIMIZED_BUILD_TYPE},>
+  $<IF:$<CONFIG:RelWithDebInfo>,${BNG_OPTIMIZED_BUILD_TYPE},>  
 )
+
+set(_RELAY_VARS
+  BNG_IS_ANDROID
+  BNG_IS_APPLE
+  BNG_IS_CLANG
+  BNG_IS_DESKTOP
+  BNG_IS_IOS
+  BNG_IS_LINUX
+  BNG_IS_MACOS  
+  BNG_IS_MOBILE
+  BNG_IS_MSVC
+  BNG_IS_SIMULATOR
+  BNG_IS_WINDOWS
+  )
+
+foreach(VAR IN LISTS _RELAY_VARS)
+  if(${${VAR}})
+    add_compile_definitions(${VAR})
+  endif()
+endforeach()
+
+unset(_RELAY_VARS)
+
+
+include("${CMAKE_INCLUDE}/options.cmake")
+
 
 get_filename_component(REPO_ROOT_DIR "${PROJECT_SOURCE_DIR}" DIRECTORY)
 
